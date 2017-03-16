@@ -7,14 +7,14 @@ import sklearn.preprocessing as preprocessing
 from sklearn.svm import LinearSVC
 from sklearn.ensemble import BaggingRegressor, BaggingClassifier
 
-
+'''
 #test data
 from sklearn.datasets import make_classification
 X, y = make_classification(1000, n_features=20, n_informative=2,
                            n_redundant=2, n_classes=2, random_state=0)
 from pandas import DataFrame
 df = DataFrame(np.hstack((X, y[:, None])))
-
+'''
 
 def plot_scatter(df, label_index = None):
     '''
