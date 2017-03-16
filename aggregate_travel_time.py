@@ -12,7 +12,16 @@ import math
 from datetime import datetime,timedelta
 
 file_suffix = '.csv'
-path = '../'  # set the data directory
+path = 'dataSets/training/'  # set the data directory
+
+def update_dic(travel_times, route_id):
+    start = datetime(2016, 9, 19, 0, 0)
+    end = datetime(2016, 10, 18, 0, 0)
+    while start < end:
+        travel_times[route_id][start] = [0]
+        start = start + timedelta(minutes=20)
+    return travel_times
+
 
 def avgTravelTime(in_file):
 
@@ -37,6 +46,7 @@ def avgTravelTime(in_file):
         route_id = intersection_id + '-' + tollgate_id
         if route_id not in travel_times.keys():
             travel_times[route_id] = {}
+            travel_times = update_dic(travel_times, route_id)
 
         trace_start_time = each_traj[3]
         trace_start_time = datetime.strptime(trace_start_time, "%Y-%m-%d %H:%M:%S")
@@ -44,25 +54,24 @@ def avgTravelTime(in_file):
         start_time_window = datetime(trace_start_time.year, trace_start_time.month, trace_start_time.day,
                                      trace_start_time.hour, time_window_minute, 0)
         tt = float(each_traj[-1]) # travel time
-
-        if start_time_window not in travel_times[route_id].keys():
-            travel_times[route_id][start_time_window] = [tt]
-        else:
-            travel_times[route_id][start_time_window].append(tt)
+        start = datetime(2016, 9, 19, 0, 0)
+        if start_time_window < start:
+            continue
+        travel_times[route_id][start_time_window].append(tt)
 
     # Step 3: Calculate average travel time for each route per time window
-    fw = open(out_file_name, 'w')
+    fw = open(path + out_file_name, 'w')
     fw.writelines(','.join(['"intersection_id"', '"tollgate_id"', '"time_window"', '"avg_travel_time"']) + '\n')
     for route in travel_times.keys():
         route_time_windows = list(travel_times[route].keys())
         route_time_windows.sort()
         for time_window_start in route_time_windows:
-            time_window_end = time_window_start + timedelta(minutes=20)
             tt_set = travel_times[route][time_window_start]
-            avg_tt = round(sum(tt_set) / float(len(tt_set)), 2)
-            out_line = ','.join(['"' + route.split('-')[0] + '"', '"' + route.split('-')[1] + '"',
-                                 '"[' + str(time_window_start) + ',' + str(time_window_end) + ')"',
-                                 '"' + str(avg_tt) + '"']) + '\n'
+            if len(tt_set) == 1:
+                avg_tt = 0
+            else:
+                avg_tt = round(sum(tt_set) / float(len(tt_set) - 1), 2)
+            out_line = ','.join(['"' + route.split('-')[0] + '"', '"' + route.split('-')[1] + '"','"' + str(time_window_start) + '"','"' + str(avg_tt) + '"']) + '\n'
             fw.writelines(out_line)
     fw.close()
 
