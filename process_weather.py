@@ -4,11 +4,11 @@
 """
 Objective:
 Calculate the average travel time for each 20-minute time window.
-
+I fill the data for 10-10 by averaging data at 10-9, 10-8, 10-11, 10-12
+9-29 21 filled by the previous time and the latter time.
 """
 
-# import necessary modules
-import math
+
 from datetime import datetime,timedelta
 
 file_suffix = '.csv'
@@ -47,9 +47,8 @@ def process_weather(in_file):
         wind_speed = each_wea[5]
         temperature = each_wea[6]
         rel_humidity = each_wea[7]
-        precipitation = each_wea[8][:-2]
-
-        start_time_window = datetime.strptime(date + ' ' + hour + ':0:0', "%Y-%m-%d %H:%M:%S")
+        precipitation = each_wea[8][:-1]
+        start_time_window = datetime.strptime(date + ' ' + hour + ':0:0', "%m/%d/%Y %H:%M:%S")
 
         start = datetime(2016, 9, 19, 0, 0)
         if start_time_window < start:
@@ -72,7 +71,7 @@ def process_weather(in_file):
         try:
             out_line = ','.join(['"' + str(time) + '"','"' + str(weathers[time]['pressure']) + '"','"' + str(weathers[time]['sea_pressure']) + '"','"' + str(weathers[time]['wind_direction']) + '"','"' + str(weathers[time]['wind_speed']) + '"','"' + str(weathers[time]['temperature']) + '"','"' + str(weathers[time]['rel_humidity']) + '"','"' + str(weathers[time]['precipitation']) + '"']) + '\n'
         except:
-            aaa=1
+            aa =1
         fw.writelines(out_line)
     fw.close()
 
