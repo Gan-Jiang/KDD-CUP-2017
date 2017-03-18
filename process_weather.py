@@ -6,6 +6,7 @@ Objective:
 Calculate the average travel time for each 20-minute time window.
 I fill the data for 10-10 by averaging data at 10-9, 10-8, 10-11, 10-12
 9-29 21 filled by the previous time and the latter time.
+9-30 0
 """
 
 
@@ -68,10 +69,7 @@ def process_weather(in_file):
     fw = open(path + out_file_name, 'w')
     fw.writelines(','.join(['"time"', '"pressure"', '"sea_pressure"', '"wind_direction"', '"wind_speed"', '"temperature"', '"rel_humidity"', '"precipitation"']) + '\n')
     for time in weathers.keys():
-        try:
-            out_line = ','.join(['"' + str(time) + '"','"' + str(weathers[time]['pressure']) + '"','"' + str(weathers[time]['sea_pressure']) + '"','"' + str(weathers[time]['wind_direction']) + '"','"' + str(weathers[time]['wind_speed']) + '"','"' + str(weathers[time]['temperature']) + '"','"' + str(weathers[time]['rel_humidity']) + '"','"' + str(weathers[time]['precipitation']) + '"']) + '\n'
-        except:
-            aa =1
+        out_line = ','.join(['"' + str(time) + '"','"' + str(weathers[time]['pressure']) + '"','"' + str(weathers[time]['sea_pressure']) + '"','"' + str(weathers[time]['wind_direction']) + '"','"' + str(weathers[time]['wind_speed']) + '"','"' + str(weathers[time]['temperature']) + '"','"' + str(weathers[time]['rel_humidity']) + '"','"' + str(weathers[time]['precipitation']) + '"']) + '\n'
         fw.writelines(out_line)
     fw.close()
 
@@ -82,6 +80,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-
