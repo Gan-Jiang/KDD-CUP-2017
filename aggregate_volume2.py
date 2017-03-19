@@ -90,7 +90,7 @@ def avgVolume(in_file):
     # Step 2: Create a dictionary to caculate and store volume per time window
     volumes = {}  # key: time window value: dictionary
     start = datetime(2016, 10, 18, 6, 0)
-    end = datetime(2016, 10, 18, 8, 0)
+    end = datetime(2016, 10, 18, 10, 0)
 
     while start < end:
         volumes[start] = {}
@@ -100,7 +100,7 @@ def avgVolume(in_file):
         start = start + timedelta(minutes=20)
 
     start = datetime(2016, 10, 19, 6, 0)
-    end = datetime(2016, 10, 19, 8, 0)
+    end = datetime(2016, 10, 19, 10, 0)
 
     while start < end:
         volumes[start] = {}
@@ -110,7 +110,7 @@ def avgVolume(in_file):
         start = start + timedelta(minutes=20)
 
     start = datetime(2016, 10, 20, 6, 0)
-    end = datetime(2016, 10, 20, 8, 0)
+    end = datetime(2016, 10, 20, 10, 0)
 
     while start < end:
         volumes[start] = {}
@@ -120,7 +120,7 @@ def avgVolume(in_file):
         start = start + timedelta(minutes=20)
 
     start = datetime(2016, 10, 21, 6, 0)
-    end = datetime(2016, 10, 21, 8, 0)
+    end = datetime(2016, 10, 21, 10, 0)
 
     while start < end:
         volumes[start] = {}
@@ -130,7 +130,7 @@ def avgVolume(in_file):
         start = start + timedelta(minutes=20)
 
     start = datetime(2016, 10, 22, 6, 0)
-    end = datetime(2016, 10, 22, 8, 0)
+    end = datetime(2016, 10, 22, 10, 0)
 
     while start < end:
         volumes[start] = {}
@@ -140,7 +140,7 @@ def avgVolume(in_file):
         start = start + timedelta(minutes=20)
 
     start = datetime(2016, 10, 23, 6, 0)
-    end = datetime(2016, 10, 23, 8, 0)
+    end = datetime(2016, 10, 23, 10, 0)
 
     while start < end:
         volumes[start] = {}
@@ -150,7 +150,7 @@ def avgVolume(in_file):
         start = start + timedelta(minutes=20)
 
     start = datetime(2016, 10, 24, 6, 0)
-    end = datetime(2016, 10, 24, 8, 0)
+    end = datetime(2016, 10, 24, 10, 0)
 
     while start < end:
         volumes[start] = {}
@@ -165,7 +165,7 @@ def avgVolume(in_file):
 
 
     start = datetime(2016, 10, 18, 15, 0)
-    end = datetime(2016, 10, 18, 17, 0)
+    end = datetime(2016, 10, 18, 19, 0)
 
     while start < end:
         volumes[start] = {}
@@ -175,7 +175,7 @@ def avgVolume(in_file):
         start = start + timedelta(minutes=20)
 
     start = datetime(2016, 10, 19, 15, 0)
-    end = datetime(2016, 10, 19, 17, 0)
+    end = datetime(2016, 10, 19, 19, 0)
 
     while start < end:
         volumes[start] = {}
@@ -185,7 +185,7 @@ def avgVolume(in_file):
         start = start + timedelta(minutes=20)
 
     start = datetime(2016, 10, 20, 15, 0)
-    end = datetime(2016, 10, 20, 17, 0)
+    end = datetime(2016, 10, 20, 19, 0)
 
     while start < end:
         volumes[start] = {}
@@ -195,7 +195,7 @@ def avgVolume(in_file):
         start = start + timedelta(minutes=20)
 
     start = datetime(2016, 10, 21, 15, 0)
-    end = datetime(2016, 10, 21, 17, 0)
+    end = datetime(2016, 10, 21, 19, 0)
 
     while start < end:
         volumes[start] = {}
@@ -205,7 +205,7 @@ def avgVolume(in_file):
         start = start + timedelta(minutes=20)
 
     start = datetime(2016, 10, 22, 15, 0)
-    end = datetime(2016, 10, 22, 17, 0)
+    end = datetime(2016, 10, 22, 19, 0)
 
     while start < end:
         volumes[start] = {}
@@ -215,7 +215,7 @@ def avgVolume(in_file):
         start = start + timedelta(minutes=20)
 
     start = datetime(2016, 10, 23, 15, 0)
-    end = datetime(2016, 10, 23, 17, 0)
+    end = datetime(2016, 10, 23, 19, 0)
 
     while start < end:
         volumes[start] = {}
@@ -225,7 +225,7 @@ def avgVolume(in_file):
         start = start + timedelta(minutes=20)
 
     start = datetime(2016, 10, 24, 15, 0)
-    end = datetime(2016, 10, 24, 17, 0)
+    end = datetime(2016, 10, 24, 19, 0)
 
     while start < end:
         volumes[start] = {}
