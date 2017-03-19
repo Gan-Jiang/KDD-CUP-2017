@@ -75,6 +75,68 @@ def update_dic(volumes, start_time_window, tollgate_id):
         volumes[start_time_window][tollgate_id]['0'][str_vehicle_type + '\n'] = 0
     return volumes
 
+
+def update_dic2(volumes, start_time_window, tollgate_id):
+    volumes[start_time_window][tollgate_id] = {}
+
+    if tollgate_id != '2':
+        volumes[start_time_window][tollgate_id]['0'] = {}
+        volumes[start_time_window][tollgate_id]['1'] = {}
+        volumes[start_time_window][tollgate_id]['0'][0] = float('nan')
+        volumes[start_time_window][tollgate_id]['1'][0] = float('nan')
+
+        volumes[start_time_window][tollgate_id]['0'][str_vehicle_model + '0'] = float('nan')
+        volumes[start_time_window][tollgate_id]['0'][str_vehicle_model + '1'] = float('nan')
+        volumes[start_time_window][tollgate_id]['0'][str_vehicle_model + '2'] = float('nan')
+        volumes[start_time_window][tollgate_id]['0'][str_vehicle_model + '3'] = float('nan')
+        volumes[start_time_window][tollgate_id]['0'][str_vehicle_model + '4'] = float('nan')
+        volumes[start_time_window][tollgate_id]['0'][str_vehicle_model + '5'] = float('nan')
+        volumes[start_time_window][tollgate_id]['0'][str_vehicle_model + '6'] = float('nan')
+        volumes[start_time_window][tollgate_id]['0'][str_vehicle_model + '7'] = float('nan')
+
+        volumes[start_time_window][tollgate_id]['0'][str_has_etc + '0'] = float('nan')
+        volumes[start_time_window][tollgate_id]['0'][str_has_etc + '1'] = float('nan')
+
+        volumes[start_time_window][tollgate_id]['0'][str_vehicle_type + '0\n'] = float('nan')
+        volumes[start_time_window][tollgate_id]['0'][str_vehicle_type + '1\n'] = float('nan')
+        volumes[start_time_window][tollgate_id]['0'][str_vehicle_type + '\n'] = float('nan')
+
+        volumes[start_time_window][tollgate_id]['1'][str_vehicle_model + '0'] = float('nan')
+        volumes[start_time_window][tollgate_id]['1'][str_vehicle_model + '1'] = float('nan')
+        volumes[start_time_window][tollgate_id]['1'][str_vehicle_model + '2'] = float('nan')
+        volumes[start_time_window][tollgate_id]['1'][str_vehicle_model + '3'] = float('nan')
+        volumes[start_time_window][tollgate_id]['1'][str_vehicle_model + '4'] = float('nan')
+        volumes[start_time_window][tollgate_id]['1'][str_vehicle_model + '5'] = float('nan')
+        volumes[start_time_window][tollgate_id]['1'][str_vehicle_model + '6'] = float('nan')
+        volumes[start_time_window][tollgate_id]['1'][str_vehicle_model + '7'] = float('nan')
+
+        volumes[start_time_window][tollgate_id]['1'][str_has_etc + '0'] = float('nan')
+        volumes[start_time_window][tollgate_id]['1'][str_has_etc + '1'] = float('nan')
+
+        volumes[start_time_window][tollgate_id]['1'][str_vehicle_type + '0\n'] = float('nan')
+        volumes[start_time_window][tollgate_id]['1'][str_vehicle_type + '1\n'] = float('nan')
+        volumes[start_time_window][tollgate_id]['1'][str_vehicle_type + '\n'] = float('nan')
+    else:
+        volumes[start_time_window][tollgate_id]['0'] = {}
+        volumes[start_time_window][tollgate_id]['0'][0] = float('nan')
+
+        volumes[start_time_window][tollgate_id]['0'][str_vehicle_model + '0'] = float('nan')
+        volumes[start_time_window][tollgate_id]['0'][str_vehicle_model + '1'] = float('nan')
+        volumes[start_time_window][tollgate_id]['0'][str_vehicle_model + '2'] = float('nan')
+        volumes[start_time_window][tollgate_id]['0'][str_vehicle_model + '3'] = float('nan')
+        volumes[start_time_window][tollgate_id]['0'][str_vehicle_model + '4'] = float('nan')
+        volumes[start_time_window][tollgate_id]['0'][str_vehicle_model + '5'] = float('nan')
+        volumes[start_time_window][tollgate_id]['0'][str_vehicle_model + '6'] = float('nan')
+        volumes[start_time_window][tollgate_id]['0'][str_vehicle_model + '7'] = float('nan')
+
+        volumes[start_time_window][tollgate_id]['0'][str_has_etc + '0'] = float('nan')
+        volumes[start_time_window][tollgate_id]['0'][str_has_etc + '1'] = float('nan')
+
+        volumes[start_time_window][tollgate_id]['0'][str_vehicle_type + '0\n'] = float('nan')
+        volumes[start_time_window][tollgate_id]['0'][str_vehicle_type + '1\n'] = float('nan')
+        volumes[start_time_window][tollgate_id]['0'][str_vehicle_type + '\n'] = float('nan')
+    return volumes
+
 def avgVolume(in_file):
 
     out_suffix = '_20min_avg_volume'
@@ -90,148 +152,292 @@ def avgVolume(in_file):
     # Step 2: Create a dictionary to caculate and store volume per time window
     volumes = {}  # key: time window value: dictionary
     start = datetime(2016, 10, 18, 6, 0)
+    end = datetime(2016, 10, 18, 8, 0)
+
+    while start < end:
+        volumes[start] = {}
+        volumes = update_dic(volumes, start, '1')
+        volumes = update_dic(volumes, start, '2')
+        volumes = update_dic(volumes, start, '3')
+        start = start + timedelta(minutes=20)
+
+    start = datetime(2016, 10, 18, 8, 0)
     end = datetime(2016, 10, 18, 10, 0)
 
     while start < end:
         volumes[start] = {}
+        volumes = update_dic2(volumes, start, '1')
+        volumes = update_dic2(volumes, start, '2')
+        volumes = update_dic2(volumes, start, '3')
+        start = start + timedelta(minutes=20)
+
+    start = datetime(2016, 10, 19, 6, 0)
+    end = datetime(2016, 10, 19, 8, 0)
+
+    while start < end:
+        volumes[start] = {}
         volumes = update_dic(volumes, start, '1')
         volumes = update_dic(volumes, start, '2')
         volumes = update_dic(volumes, start, '3')
         start = start + timedelta(minutes=20)
 
-    start = datetime(2016, 10, 19, 6, 0)
+    start = datetime(2016, 10, 19, 8, 0)
     end = datetime(2016, 10, 19, 10, 0)
 
     while start < end:
         volumes[start] = {}
+        volumes = update_dic2(volumes, start, '1')
+        volumes = update_dic2(volumes, start, '2')
+        volumes = update_dic2(volumes, start, '3')
+        start = start + timedelta(minutes=20)
+
+    start = datetime(2016, 10, 20, 6, 0)
+    end = datetime(2016, 10, 20, 8, 0)
+
+    while start < end:
+        volumes[start] = {}
         volumes = update_dic(volumes, start, '1')
         volumes = update_dic(volumes, start, '2')
         volumes = update_dic(volumes, start, '3')
         start = start + timedelta(minutes=20)
 
-    start = datetime(2016, 10, 20, 6, 0)
+    start = datetime(2016, 10, 20, 8, 0)
     end = datetime(2016, 10, 20, 10, 0)
 
     while start < end:
         volumes[start] = {}
+        volumes = update_dic2(volumes, start, '1')
+        volumes = update_dic2(volumes, start, '2')
+        volumes = update_dic2(volumes, start, '3')
+        start = start + timedelta(minutes=20)
+
+    start = datetime(2016, 10, 21, 6, 0)
+    end = datetime(2016, 10, 21, 8, 0)
+
+    while start < end:
+        volumes[start] = {}
         volumes = update_dic(volumes, start, '1')
         volumes = update_dic(volumes, start, '2')
         volumes = update_dic(volumes, start, '3')
         start = start + timedelta(minutes=20)
 
-    start = datetime(2016, 10, 21, 6, 0)
+    start = datetime(2016, 10, 21, 8, 0)
     end = datetime(2016, 10, 21, 10, 0)
 
     while start < end:
         volumes[start] = {}
+        volumes = update_dic2(volumes, start, '1')
+        volumes = update_dic2(volumes, start, '2')
+        volumes = update_dic2(volumes, start, '3')
+        start = start + timedelta(minutes=20)
+
+    start = datetime(2016, 10, 22, 6, 0)
+    end = datetime(2016, 10, 22, 8, 0)
+
+    while start < end:
+        volumes[start] = {}
         volumes = update_dic(volumes, start, '1')
         volumes = update_dic(volumes, start, '2')
         volumes = update_dic(volumes, start, '3')
         start = start + timedelta(minutes=20)
 
-    start = datetime(2016, 10, 22, 6, 0)
+    start = datetime(2016, 10, 22, 8, 0)
     end = datetime(2016, 10, 22, 10, 0)
 
     while start < end:
         volumes[start] = {}
+        volumes = update_dic2(volumes, start, '1')
+        volumes = update_dic2(volumes, start, '2')
+        volumes = update_dic2(volumes, start, '3')
+        start = start + timedelta(minutes=20)
+
+    start = datetime(2016, 10, 23, 6, 0)
+    end = datetime(2016, 10, 23, 8, 0)
+
+    while start < end:
+        volumes[start] = {}
         volumes = update_dic(volumes, start, '1')
         volumes = update_dic(volumes, start, '2')
         volumes = update_dic(volumes, start, '3')
         start = start + timedelta(minutes=20)
 
-    start = datetime(2016, 10, 23, 6, 0)
+    start = datetime(2016, 10, 23, 8, 0)
     end = datetime(2016, 10, 23, 10, 0)
 
     while start < end:
         volumes[start] = {}
+        volumes = update_dic2(volumes, start, '1')
+        volumes = update_dic2(volumes, start, '2')
+        volumes = update_dic2(volumes, start, '3')
+        start = start + timedelta(minutes=20)
+
+    start = datetime(2016, 10, 24, 6, 0)
+    end = datetime(2016, 10, 24, 8, 0)
+
+    while start < end:
+        volumes[start] = {}
         volumes = update_dic(volumes, start, '1')
         volumes = update_dic(volumes, start, '2')
         volumes = update_dic(volumes, start, '3')
         start = start + timedelta(minutes=20)
 
-    start = datetime(2016, 10, 24, 6, 0)
+    start = datetime(2016, 10, 24, 8, 0)
     end = datetime(2016, 10, 24, 10, 0)
 
     while start < end:
         volumes[start] = {}
-        volumes = update_dic(volumes, start, '1')
-        volumes = update_dic(volumes, start, '2')
-        volumes = update_dic(volumes, start, '3')
+        volumes = update_dic2(volumes, start, '1')
+        volumes = update_dic2(volumes, start, '2')
+        volumes = update_dic2(volumes, start, '3')
         start = start + timedelta(minutes=20)
-
-
-
 
 
 
     start = datetime(2016, 10, 18, 15, 0)
+    end = datetime(2016, 10, 18, 17, 0)
+
+    while start < end:
+        volumes[start] = {}
+        volumes = update_dic(volumes, start, '1')
+        volumes = update_dic(volumes, start, '2')
+        volumes = update_dic(volumes, start, '3')
+        start = start + timedelta(minutes=20)
+
+
+    start = datetime(2016, 10, 18, 17, 0)
     end = datetime(2016, 10, 18, 19, 0)
 
     while start < end:
         volumes[start] = {}
+        volumes = update_dic2(volumes, start, '1')
+        volumes = update_dic2(volumes, start, '2')
+        volumes = update_dic2(volumes, start, '3')
+        start = start + timedelta(minutes=20)
+
+    start = datetime(2016, 10, 19, 15, 0)
+    end = datetime(2016, 10, 19, 17, 0)
+
+    while start < end:
+        volumes[start] = {}
         volumes = update_dic(volumes, start, '1')
         volumes = update_dic(volumes, start, '2')
         volumes = update_dic(volumes, start, '3')
         start = start + timedelta(minutes=20)
 
-    start = datetime(2016, 10, 19, 15, 0)
+
+    start = datetime(2016, 10, 19, 17, 0)
     end = datetime(2016, 10, 19, 19, 0)
 
     while start < end:
         volumes[start] = {}
+        volumes = update_dic2(volumes, start, '1')
+        volumes = update_dic2(volumes, start, '2')
+        volumes = update_dic2(volumes, start, '3')
+        start = start + timedelta(minutes=20)
+
+    start = datetime(2016, 10, 20, 15, 0)
+    end = datetime(2016, 10, 20, 17, 0)
+
+    while start < end:
+        volumes[start] = {}
         volumes = update_dic(volumes, start, '1')
         volumes = update_dic(volumes, start, '2')
         volumes = update_dic(volumes, start, '3')
         start = start + timedelta(minutes=20)
 
-    start = datetime(2016, 10, 20, 15, 0)
+
+    start = datetime(2016, 10, 20, 17, 0)
     end = datetime(2016, 10, 20, 19, 0)
 
     while start < end:
         volumes[start] = {}
+        volumes = update_dic2(volumes, start, '1')
+        volumes = update_dic2(volumes, start, '2')
+        volumes = update_dic2(volumes, start, '3')
+        start = start + timedelta(minutes=20)
+
+    start = datetime(2016, 10, 21, 15, 0)
+    end = datetime(2016, 10, 21, 17, 0)
+
+    while start < end:
+        volumes[start] = {}
         volumes = update_dic(volumes, start, '1')
         volumes = update_dic(volumes, start, '2')
         volumes = update_dic(volumes, start, '3')
         start = start + timedelta(minutes=20)
 
-    start = datetime(2016, 10, 21, 15, 0)
+
+    start = datetime(2016, 10, 21, 17, 0)
     end = datetime(2016, 10, 21, 19, 0)
 
     while start < end:
         volumes[start] = {}
+        volumes = update_dic2(volumes, start, '1')
+        volumes = update_dic2(volumes, start, '2')
+        volumes = update_dic2(volumes, start, '3')
+        start = start + timedelta(minutes=20)
+
+    start = datetime(2016, 10, 22, 15, 0)
+    end = datetime(2016, 10, 22, 17, 0)
+
+    while start < end:
+        volumes[start] = {}
         volumes = update_dic(volumes, start, '1')
         volumes = update_dic(volumes, start, '2')
         volumes = update_dic(volumes, start, '3')
         start = start + timedelta(minutes=20)
 
-    start = datetime(2016, 10, 22, 15, 0)
+
+    start = datetime(2016, 10, 22, 17, 0)
     end = datetime(2016, 10, 22, 19, 0)
 
     while start < end:
         volumes[start] = {}
+        volumes = update_dic2(volumes, start, '1')
+        volumes = update_dic2(volumes, start, '2')
+        volumes = update_dic2(volumes, start, '3')
+        start = start + timedelta(minutes=20)
+
+    start = datetime(2016, 10, 23, 15, 0)
+    end = datetime(2016, 10, 23, 17, 0)
+
+    while start < end:
+        volumes[start] = {}
         volumes = update_dic(volumes, start, '1')
         volumes = update_dic(volumes, start, '2')
         volumes = update_dic(volumes, start, '3')
         start = start + timedelta(minutes=20)
 
-    start = datetime(2016, 10, 23, 15, 0)
+
+    start = datetime(2016, 10, 23, 17, 0)
     end = datetime(2016, 10, 23, 19, 0)
 
     while start < end:
         volumes[start] = {}
-        volumes = update_dic(volumes, start, '1')
-        volumes = update_dic(volumes, start, '2')
-        volumes = update_dic(volumes, start, '3')
+        volumes = update_dic2(volumes, start, '1')
+        volumes = update_dic2(volumes, start, '2')
+        volumes = update_dic2(volumes, start, '3')
         start = start + timedelta(minutes=20)
 
     start = datetime(2016, 10, 24, 15, 0)
-    end = datetime(2016, 10, 24, 19, 0)
+    end = datetime(2016, 10, 24, 17, 0)
 
     while start < end:
         volumes[start] = {}
         volumes = update_dic(volumes, start, '1')
         volumes = update_dic(volumes, start, '2')
         volumes = update_dic(volumes, start, '3')
+        start = start + timedelta(minutes=20)
+
+
+    start = datetime(2016, 10, 24, 17, 0)
+    end = datetime(2016, 10, 24, 19, 0)
+
+    while start < end:
+        volumes[start] = {}
+        volumes = update_dic2(volumes, start, '1')
+        volumes = update_dic2(volumes, start, '2')
+        volumes = update_dic2(volumes, start, '3')
         start = start + timedelta(minutes=20)
 
 
