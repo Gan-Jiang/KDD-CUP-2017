@@ -16,14 +16,14 @@ from pandas import DataFrame
 df = DataFrame(np.hstack((X, y[:, None])))
 '''
 
-def plot_scatter(df, label_index = None):
+def plot_scatter(df, vars, label_index = None):
     '''
     plot scatter plot of pd.dataframe
     :param df:
     :param label_index: the index of the label. Used only for classification problem.
     :return:
     '''
-    _ = sns.pairplot(df[:50], vars=[8, 11, 12, 14, 19], hue=label_index, size=1.5)
+    _ = sns.pairplot(df, vars=vars, hue=label_index, size=3)
     plt.show()
 
 
@@ -53,6 +53,19 @@ def plot_corr(df):
                 square=True, xticklabels=5, yticklabels=5,
                 linewidths=.5, cbar_kws={"shrink": .5}, ax=ax)
     plt.show()
+
+def crosscorr(datax, datay, lag=0):
+    """ Lag-N cross correlation.
+    Parameters
+    ----------
+    lag : int, default 0
+    datax, datay : pandas.Series objects of equal length
+
+    Returns
+    ----------
+    crosscorr : float
+    """
+    return datax.corr(datay.shift(lag))
 
 
 def plot_learning_curve(estimator, X, y, cv=5, ylim=None,

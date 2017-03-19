@@ -49,7 +49,10 @@ def process_weather(in_file):
         temperature = each_wea[6]
         rel_humidity = each_wea[7]
         precipitation = each_wea[8][:-1]
-        start_time_window = datetime.strptime(date + ' ' + hour + ':0:0', "%m/%d/%Y %H:%M:%S")
+        if precipitation == '':
+            precipitation = each_wea[8]
+        start_date = datetime.strptime(date, "%m/%d/%Y")
+        start_time_window = datetime(start_date.year, start_date.month, start_date.day, int(hour), 0, 0)
 
         start = datetime(2016, 9, 19, 0, 0)
         if start_time_window < start:
@@ -67,7 +70,7 @@ def process_weather(in_file):
             start = start + timedelta(minutes=20)
     # Step 3: Calculate average travel time for each route per time window
     fw = open(path + out_file_name, 'w')
-    fw.writelines(','.join(['"time"', '"pressure"', '"sea_pressure"', '"wind_direction"', '"wind_speed"', '"temperature"', '"rel_humidity"', '"precipitation"']) + '\n')
+    fw.writelines(','.join(['"time_window"', '"pressure"', '"sea_pressure"', '"wind_direction"', '"wind_speed"', '"temperature"', '"rel_humidity"', '"precipitation"']) + '\n')
     for time in weathers.keys():
         out_line = ','.join(['"' + str(time) + '"','"' + str(weathers[time]['pressure']) + '"','"' + str(weathers[time]['sea_pressure']) + '"','"' + str(weathers[time]['wind_direction']) + '"','"' + str(weathers[time]['wind_speed']) + '"','"' + str(weathers[time]['temperature']) + '"','"' + str(weathers[time]['rel_humidity']) + '"','"' + str(weathers[time]['precipitation']) + '"']) + '\n'
         fw.writelines(out_line)
