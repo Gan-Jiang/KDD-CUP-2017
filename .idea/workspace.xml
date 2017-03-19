@@ -5,14 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f19314eb-62d8-4e30-8ac8-a0667f57878b" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/process_travel_time.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.ipynb_checkpoints/dataprocess-checkpoint.ipynb" afterPath="$PROJECT_DIR$/.ipynb_checkpoints/dataprocess-checkpoint.ipynb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dataSets/training/training_20min_avg_volume.csv" afterPath="$PROJECT_DIR$/dataSets/training/training_20min_avg_volume.csv" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dataSets/training/training_20min_weather.csv" afterPath="$PROJECT_DIR$/dataSets/training/training_20min_weather.csv" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/backup.csv" afterPath="$PROJECT_DIR$/backup.csv" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/data_1_0_final.csv" afterPath="$PROJECT_DIR$/data_1_0_final.csv" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/data_1_1_final.csv" afterPath="$PROJECT_DIR$/data_1_1_final.csv" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/data_2_0_final.csv" afterPath="$PROJECT_DIR$/data_2_0_final.csv" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/data_3_0_final.csv" afterPath="$PROJECT_DIR$/data_3_0_final.csv" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/data_3_1_final.csv" afterPath="$PROJECT_DIR$/data_3_1_final.csv" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dataprocess.ipynb" afterPath="$PROJECT_DIR$/dataprocess.ipynb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/process_weather.py" afterPath="$PROJECT_DIR$/process_weather.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/util.py" afterPath="$PROJECT_DIR$/util.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -33,11 +33,11 @@
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="util.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="util.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/util.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="191">
-              <caret line="39" column="0" lean-forward="true" selection-start-line="39" selection-start-column="0" selection-end-line="39" selection-end-column="0" />
+            <state relative-caret-position="329">
+              <caret line="181" column="0" lean-forward="true" selection-start-line="181" selection-start-column="0" selection-end-line="181" selection-end-column="0" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
@@ -79,11 +79,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="process_weather.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="process_weather.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/process_weather.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="120">
-              <caret line="8" column="6" lean-forward="false" selection-start-line="8" selection-start-column="6" selection-end-line="8" selection-end-column="6" />
+            <state relative-caret-position="149">
+              <caret line="53" column="51" lean-forward="false" selection-start-line="53" selection-start-column="51" selection-end-line="53" selection-end-column="51" />
               <folding />
             </state>
           </provider>
@@ -125,7 +125,6 @@
       <find>travel_times</find>
       <find>each_traj</find>
       <find>trace_start_time</find>
-      <find>drop</find>
       <find>sort</find>
       <find>in_file_name</find>
       <find>print</find>
@@ -139,6 +138,8 @@
       <find>volumes</find>
       <find>avg_tt2</find>
       <find>merge</find>
+      <find>drip</find>
+      <find>drop</find>
     </findStrings>
     <replaceStrings>
       <replace>weathers</replace>
@@ -773,16 +774,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/util.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="191">
-          <caret line="39" column="0" lean-forward="true" selection-start-line="39" selection-start-column="0" selection-end-line="39" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#19#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/aggregate_travel_time.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="123">
@@ -813,9 +804,19 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/process_weather.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="8" column="6" lean-forward="false" selection-start-line="8" selection-start-column="6" selection-end-line="8" selection-end-column="6" />
+        <state relative-caret-position="149">
+          <caret line="53" column="51" lean-forward="false" selection-start-line="53" selection-start-column="51" selection-end-line="53" selection-end-column="51" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/util.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="329">
+          <caret line="181" column="0" lean-forward="true" selection-start-line="181" selection-start-column="0" selection-end-line="181" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
