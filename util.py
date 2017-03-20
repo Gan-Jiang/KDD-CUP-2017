@@ -68,7 +68,7 @@ def crosscorr(datax, datay, lag=0):
     return datax.corr(datay.shift(lag))
 
 
-def plot_learning_curve(estimator, X, y, cv=5, ylim=None,
+def plot_learning_curve(estimator, X, y, cv=5, scoring = 'neg_mean_squared_error', ylim=None,
                         train_sizes=np.linspace(.1, 1.0, 5)):
     '''
     Plot the learning curve of the data on one model.
@@ -83,7 +83,7 @@ def plot_learning_curve(estimator, X, y, cv=5, ylim=None,
 
     plt.figure()
     train_sizes, train_scores, test_scores = learning_curve(
-        estimator, X, y, cv=cv, n_jobs=1, train_sizes=train_sizes)
+        estimator, X, y, cv=cv, n_jobs=1, train_sizes=train_sizes, scoring = scoring)
     train_scores_mean = np.mean(train_scores, axis=1)
     train_scores_std = np.std(train_scores, axis=1)
     test_scores_mean = np.mean(test_scores, axis=1)
@@ -109,7 +109,7 @@ def plot_learning_curve(estimator, X, y, cv=5, ylim=None,
     plt.show()
 
 
-def grid_search(estimator, param_grid, X, y):
+def grid_search(estimator, param_grid, X, y, scoring = 'neg_mean_squared_error'):
     '''
     :param estimator:
     :param param_grid: param_grid={"C": [0.001, 0.01, 0.1, 1.0, 10.0]}
@@ -117,7 +117,7 @@ def grid_search(estimator, param_grid, X, y):
     :param y: labels
     :return: gridsearch object. Can call estm.best_params_ or best_estimator_
     '''
-    estm = GridSearchCV(estimator, param_grid=param_grid)
+    estm = GridSearchCV(estimator, param_grid=param_grid, scoring = scoring)
     estm.fit(X, y)
 
 
