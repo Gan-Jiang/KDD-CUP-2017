@@ -8,7 +8,7 @@ import math
 from datetime import datetime,timedelta
 
 file_suffix = '.csv'
-#path = 'dataSets/training/'  # set the data directory
+path = 'dataSets/training/'  # set the data directory
 
 str_vehicle_model = 'vehicle_model '
 str_has_etc = 'has_etc '
