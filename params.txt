@@ -1,2 +1,6 @@
 08:00:00{'min_samples_leaf': 5, 'max_features': 'sqrt'}08:00:00{'min_samples_leaf': 5, 'max_features': 'sqrt'}08:00:00
 {'max_features': 'sqrt', 'min_samples_leaf': 5}
+08:00:00
+{'max_features': 'sqrt', 'min_samples_leaf': 5}
+08:20:00
+{'max_features': 'sqrt', 'min_samples_leaf': 5}
