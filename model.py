@@ -10,7 +10,7 @@ import time
 from sklearn.metrics import make_scorer
 from sklearn.ensemble import RandomForestRegressor
 from datetime import datetime,timedelta
-
+from  sklearn.model_selection import GridSearchCV
 
 def MAPE(ground_truth, predictions):
     ground_truth[ground_truth == 0] = math.inf
@@ -34,39 +34,33 @@ def train_for_moment(moment_id1, moment_id2, moment_id3, train_df, test_df):
     all_df.drop(['dayofweek'], axis=1, inplace=True)
     all_df = pd.concat([all_df, dweek, dhour], axis=1)
     all_df = all_df.dropna(axis=1)
-    dummy_train_df_1 = all_df.loc[train_df2.index]
+    dummy_train_df_1 = all_df[:len(train_df2)]
     dummy_test_df = all_df.loc[test_df2.index]
     X_train = dummy_train_df_1.values
     X_test = dummy_test_df.values
 
     loss = make_scorer(MAPE, greater_is_better=False)
-    '''
-    max_features = [.1, .3, .5]
-    test_scores = []
-    best_score = 1
-    for max_feat in max_features:
-        start_time = time.time()
-        clf = RandomForestRegressor(n_estimators=200, criterion = 'mae', max_features=max_feat, n_jobs = -1)
-        test_score = -cross_val_score(clf, X_train, y_train1, cv=5, scoring=loss).mean()
-        test_scores.append(test_score)
-        if test_score < best_score:
-            best_score = test_score
-            best_index = max_feat
-        print("max_feat:" + str(max_feat) + " loss = " + str(test_score))
-        print("time:" + str(time.time() - start_time))
-    '''
-    best_index = 0.4
-    clf = RandomForestRegressor(n_estimators=500, criterion = 'mae', min_samples_leaf=10, max_features=best_index, n_jobs = -1)
+    rf = RandomForestRegressor(n_estimators=100, criterion='mae', n_jobs=-1)
+    parameters = {'max_features': ['sqrt'], 'min_samples_leaf': [5,10,20]}
+    clf = GridSearchCV(rf, parameters, scoring = loss, n_jobs = -1)
     clf.fit(X_train, y_train1)
-    pred = clf.predict(X_test)
+    params = clf.best_params_
+    with open('params.txt', 'a') as f:
+        f.writelines(moment_id1 + '\n')
+        f.writelines(str(params) + '\n')
+    rf = RandomForestRegressor(n_estimators=750, criterion='mae', n_jobs=-1, max_features = params['max_features'], min_samples_leaf = params['min_samples_leaf'])
+    rf.fit(X_train, y_train1)
+    pred = rf.predict(X_test)
+
     return pred
 
 
 def main(tollgate_id, direction, fw):
     train_path = 'dataSets/training/'
     test_path = "dataSets/testing_phase1/"
-
-    train_df = pd.read_csv(train_path + 'data_' + str(tollgate_id) + '_' + str(direction) + '_final.csv', index_col=0)
+    out_file_name = 'result_03_22.csv'
+    fw = open(test_path + out_file_name, 'a')
+    train_df = pd.read_csv(train_path + 'data_' + str(tollgate_id) + '_' + str(direction) + '_final2.csv', index_col=0)
     test_df = pd.read_csv(test_path + 'data_' + str(tollgate_id) + '_' + str(direction) + '_final.csv', index_col=0)
 
     test_df.drop(['volume'], axis=1, inplace=True)
@@ -202,24 +196,22 @@ def main(tollgate_id, direction, fw):
                              ]) + '\n'
         fw.writelines(out_line)
     print('6, time:' + str(time.time() - start_time))
+    fw.close()
 
 
-out_file_name = 'result_03_21.csv'
-test_path = "dataSets/testing_phase1/"
-fw = open(test_path + out_file_name, 'w')
-fw.writelines(','.join(['"tollgate_id"', '"time_window"', '"direction"', '"volume"']) + '\n')
 print('tollgate:' + str(1) + 'direction:' + str(0))
-main(1, 0, fw)
+main(1, 1)
+
+
 print('tollgate:' + str(1) + 'direction:' + str(1))
 
-main(1, 1, fw)
+main(1, 1)
 print('tollgate:' + str(2) + 'direction:' + str(0))
 
-main(2, 0, fw)
+main(2, 0)
 print('tollgate:' + str(3) + 'direction:' + str(0))
 
-main(3, 0, fw)
+main(3, 0)
 print('tollgate:' + str(3) + 'direction:' + str(1))
 
-main(3, 1, fw)
-fw.close()
+main(3, 1)
