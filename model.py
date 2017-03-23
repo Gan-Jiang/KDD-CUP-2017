@@ -13,8 +13,15 @@ from datetime import datetime,timedelta
 from  sklearn.model_selection import GridSearchCV
 import pickle
 def MAPE(ground_truth, predictions):
-    ground_truth[ground_truth == 0] = math.inf
+    ground_truth[ground_truth == 0] = 100000
+    predictions[ground_truth == 100000] = 100000
     diff = np.abs((ground_truth - predictions)/ground_truth).mean()
+    return diff
+
+def MAPE2(ground_truth, predictions):
+    ground_truth[ground_truth == 0] = 100000
+    predictions[ground_truth == 100000] = 100000
+    diff = np.abs((ground_truth - predictions)/ground_truth).sum()
     return diff
 
 def train_for_moment(moment_id1, moment_id2, moment_id3, tollgate_id, direction):
@@ -53,10 +60,10 @@ def train_for_moment(moment_id1, moment_id2, moment_id3, tollgate_id, direction)
         if (i == 9) and (len(X_valid) % fold != 0):
             X_valid_real = np.concatenate((X_valid_real, X_valid[(i + 1) * fold:]), axis=0)
             y_valid_real = np.concatenate((y_valid_real, y_valid[(i + 1) * fold:]), axis=0)
-        rf = RandomForestRegressor(n_estimators=500, criterion='mse', n_jobs=-1, max_features='sqrt', min_samples_leaf=10)
+        rf = RandomForestRegressor(n_estimators=500, criterion='mse', n_jobs=-1, max_features=0.15, min_samples_leaf=10)
         rf.fit(X_train_real, y_train_real)
         pred = rf.predict(X_valid_real)
-        CV_loss += MAPE(y_valid_real, pred)
+        CV_loss += MAPE2(y_valid_real, pred)
         #print("time:" + str(time.time() - start_time))
     CV_loss = CV_loss/len(X_valid)
 
@@ -276,6 +283,11 @@ def main(tollgate_id, direction):
     fw2.close()
     return total_loss/6
 
+out_file_name = 'result_03_23.csv'
+test_path = "dataSets/testing_phase1/"
+fw = open(out_file_name, 'w')
+fw.writelines(','.join(['"tollgate_id"', '"time_window"', '"direction"', '"volume"']) + '\n')
+fw.close()
 T_loss = 0
 print('tollgate:' + str(1) + 'direction:' + str(0))
 total_loss = main(1, 0)
@@ -288,8 +300,9 @@ T_loss += total_loss
 print('tollgate:' + str(2) + 'direction:' + str(0))
 
 total_loss = main(2, 0)
-T_loss += total_loss
 
+
+T_loss += total_loss
 print('tollgate:' + str(3) + 'direction:' + str(0))
 
 total_loss = main(3, 0)
@@ -305,3 +318,4 @@ test_path = "dataSets/testing_phase1/"
 out_file_name2 = 'cv_loss.csv'
 fw2 = open(test_path + out_file_name2, 'a')
 fw2.writelines(str(T_loss) + '\n')
+fw2.close()
