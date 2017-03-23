@@ -53,11 +53,14 @@ def train_for_moment(moment_id1, moment_id2, moment_id3, tollgate_id, direction)
     fold = len(X_valid) // 10
     for i in range(10):
         #start_time = time.time()
-        X_train_real = np.concatenate((X_train, X_valid[i*fold:(i+1)*fold]), axis=0)
-        y_train_real = np.concatenate((y_train, y_valid[i*fold:(i+1)*fold]), axis=0)
-        X_valid_real = np.concatenate((X_valid[:i*fold], X_valid[(i+1)*fold:10*fold]), axis=0)
-        y_valid_real = np.concatenate((y_valid[:i*fold], y_valid[(i+1)*fold:10*fold]), axis=0)
+        X_valid_real = X_valid[i*fold:(i+1)*fold]
+        y_valid_real = y_valid[i*fold:(i+1)*fold]
+        X_train_real = np.concatenate((X_train, X_valid[:i*fold], X_valid[(i+1)*fold:]), axis=0)
+        y_train_real = np.concatenate((y_train, y_valid[:i*fold], y_valid[(i+1)*fold:]), axis=0)
+
         if (i == 9) and (len(X_valid) % fold != 0):
+            X_train_real = np.concatenate((X_train, X_valid[:i * fold], X_valid[(i + 1) * fold:10 * fold]), axis=0)
+            y_train_real = np.concatenate((y_train, y_valid[:i * fold], y_valid[(i + 1) * fold:10 * fold]), axis=0)
             X_valid_real = np.concatenate((X_valid_real, X_valid[(i + 1) * fold:]), axis=0)
             y_valid_real = np.concatenate((y_valid_real, y_valid[(i + 1) * fold:]), axis=0)
         rf = RandomForestRegressor(n_estimators=500, criterion='mse', n_jobs=-1, max_features=0.15, min_samples_leaf=10)
@@ -285,7 +288,7 @@ def main(tollgate_id, direction):
 
 out_file_name = 'result_03_23.csv'
 test_path = "dataSets/testing_phase1/"
-fw = open(out_file_name, 'w')
+fw = open(test_path + out_file_name, 'a')
 fw.writelines(','.join(['"tollgate_id"', '"time_window"', '"direction"', '"volume"']) + '\n')
 fw.close()
 T_loss = 0
