@@ -19,14 +19,18 @@ def g_data(moment_id1, moment_id2, moment_id3, tollgate_id, direction):
     test_path = "dataSets/testing_phase1/"
     data_path = "dataSets/data/"
 
-    train_df = pd.read_csv(train_path + 'data_' + str(tollgate_id) + '_' + str(direction) + '_final2.csv', index_col=0)
+    train_df = pd.read_csv(train_path + 'data_' + str(tollgate_id) + '_' + str(direction) + '_final.csv', index_col=0)
     test_df = pd.read_csv(test_path + 'data_' + str(tollgate_id) + '_' + str(direction) + '_final.csv', index_col=0)
 
     test_df.drop(['volume'], axis=1, inplace=True)
 
     test_df2 = test_df.ix[['2016-10-18 ' + moment_id1, '2016-10-19 ' + moment_id1,  '2016-10-20 ' + moment_id1,  '2016-10-21 ' + moment_id1,  '2016-10-22 ' + moment_id1,  '2016-10-23 ' + moment_id1,  '2016-10-24 ' + moment_id1, '2016-10-18 ' + moment_id2, '2016-10-19 ' + moment_id2, '2016-10-20 ' + moment_id2, '2016-10-21 ' + moment_id2, '2016-10-22 ' + moment_id2, '2016-10-23 ' + moment_id2, '2016-10-24 ' + moment_id2]]
     train_df2 = train_df.ix[moment_id3:]
-    y_train1 = train_df2.pop('volume')
+    valid_df = train_df2.loc[(train_df['hour'] >= 8 ) & (train_df['hour'] <= 18 )]
+    train_df3 = train_df2.loc[(train_df['hour'] < 8 ) | (train_df['hour'] > 18 )]
+    y_train1 = train_df3.pop('volume').values
+    y_valid = valid_df.pop('volume').values
+
 
     all_df = pd.concat((train_df2, test_df2), axis=0)
     dweek = pd.get_dummies(all_df['dayofweek'], prefix='dayofweek')
@@ -39,11 +43,13 @@ def g_data(moment_id1, moment_id2, moment_id3, tollgate_id, direction):
     all_df.drop(['dayofweek'], axis=1, inplace=True)
     all_df = pd.concat([all_df, dweek, dhour], axis=1)
     all_df = all_df.dropna(axis=1)
-    dummy_train_df_1 = all_df[:len(train_df2)]
+    dummy_train_df_1 = all_df.loc[train_df3.index]
+    dummy_valid_df =  all_df.loc[valid_df.index]
     dummy_test_df = all_df.loc[test_df2.index]
     X_train = dummy_train_df_1.values
+    X_valid = dummy_valid_df.values
     X_test = dummy_test_df.values
-    data = {'X_train':X_train, 'X_test':X_test, 'y_train1':y_train1}
+    data = {'X_train':X_train, 'X_test':X_test, 'X_valid': X_valid, 'y_train':y_train1, 'y_valid': y_valid}
     with open(data_path + moment_id1[:2] + moment_id1[3:5] + str(tollgate_id) + str(direction) + 'data.pkl', 'wb') as handle:
         pickle.dump(data, handle)
 
