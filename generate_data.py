@@ -26,7 +26,7 @@ def g_data(moment_id1, moment_id2, moment_id3, tollgate_id, direction):
 
     test_df2 = test_df.ix[['2016-10-18 ' + moment_id1, '2016-10-19 ' + moment_id1,  '2016-10-20 ' + moment_id1,  '2016-10-21 ' + moment_id1,  '2016-10-22 ' + moment_id1,  '2016-10-23 ' + moment_id1,  '2016-10-24 ' + moment_id1, '2016-10-18 ' + moment_id2, '2016-10-19 ' + moment_id2, '2016-10-20 ' + moment_id2, '2016-10-21 ' + moment_id2, '2016-10-22 ' + moment_id2, '2016-10-23 ' + moment_id2, '2016-10-24 ' + moment_id2]]
     train_df2 = train_df.ix[moment_id3:]
-    valid_df = train_df2.loc[(train_df['hour'] >= 8 ) & (train_df['hour'] <= 18 )]
+    valid_df = train_df2.loc[(train_df['hour'] >= 8 ) & (train_df['hour'] <= 18 ) &(train_df['dayofweek'] != 3 )]
     train_df3 = train_df2.loc[(train_df['hour'] < 8 ) | (train_df['hour'] > 18 )]
     y_train1 = train_df3.pop('volume').values
     y_valid = valid_df.pop('volume').values

@@ -12,6 +12,9 @@ from sklearn.ensemble import RandomForestRegressor
 from datetime import datetime,timedelta
 from  sklearn.model_selection import GridSearchCV
 import pickle
+from hyperopt import fmin, hp, tpe
+
+
 def MAPE(ground_truth, predictions):
     ground_truth[ground_truth == 0] = 100000
     predictions[ground_truth == 100000] = 100000
@@ -24,7 +27,36 @@ def MAPE2(ground_truth, predictions):
     diff = np.abs((ground_truth - predictions)/ground_truth).sum()
     return diff
 
+
+def randomforest_objective(args):
+    #CV procedure
+    global X_train, y_train, X_valid, y_valid
+    max_features = args['max_features']
+    min_samples_leaf = args['min_samples_leaf']
+    CV_loss = 0
+    fold = len(X_valid) // 10
+    for i in range(10):
+        #start_time = time.time()
+        X_valid_real = X_valid[i*fold:(i+1)*fold]
+        y_valid_real = y_valid[i*fold:(i+1)*fold]
+        X_train_real = np.concatenate((X_train, X_valid[:i*fold], X_valid[(i+1)*fold:]), axis=0)
+        y_train_real = np.concatenate((y_train, y_valid[:i*fold], y_valid[(i+1)*fold:]), axis=0)
+
+        if (i == 9) and (len(X_valid) % fold != 0):
+            X_train_real = np.concatenate((X_train, X_valid[:i * fold], X_valid[(i + 1) * fold:10 * fold]), axis=0)
+            y_train_real = np.concatenate((y_train, y_valid[:i * fold], y_valid[(i + 1) * fold:10 * fold]), axis=0)
+            X_valid_real = np.concatenate((X_valid_real, X_valid[(i + 1) * fold:]), axis=0)
+            y_valid_real = np.concatenate((y_valid_real, y_valid[(i + 1) * fold:]), axis=0)
+        rf = RandomForestRegressor(n_estimators=500, criterion='mse', n_jobs=-1, max_features=max_features, min_samples_leaf=min_samples_leaf)
+        rf.fit(X_train_real, y_train_real)
+        pred = rf.predict(X_valid_real)
+        CV_loss += MAPE2(y_valid_real.copy(), pred)
+        #print("time:" + str(time.time() - start_time))
+    CV_loss = CV_loss/len(X_valid)
+    return CV_loss
+
 def train_for_moment(moment_id1, moment_id2, moment_id3, tollgate_id, direction):
+    global X_train, y_train, X_valid, y_valid
     data_path = "dataSets/data/"
     with open(data_path + moment_id1[:2] + moment_id1[3:5] + str(tollgate_id) + str(direction) + 'data.pkl', 'rb') as handle:
         data = pickle.load(handle)
@@ -48,27 +80,22 @@ def train_for_moment(moment_id1, moment_id2, moment_id3, tollgate_id, direction)
     clf = GridSearchCV(rf, parameters, scoring = loss, n_jobs = -1)
     params = clf.best_params_
     '''
-    #CV procedure
-    CV_loss = 0
-    fold = len(X_valid) // 10
-    for i in range(10):
-        #start_time = time.time()
-        X_valid_real = X_valid[i*fold:(i+1)*fold]
-        y_valid_real = y_valid[i*fold:(i+1)*fold]
-        X_train_real = np.concatenate((X_train, X_valid[:i*fold], X_valid[(i+1)*fold:]), axis=0)
-        y_train_real = np.concatenate((y_train, y_valid[:i*fold], y_valid[(i+1)*fold:]), axis=0)
 
-        if (i == 9) and (len(X_valid) % fold != 0):
-            X_train_real = np.concatenate((X_train, X_valid[:i * fold], X_valid[(i + 1) * fold:10 * fold]), axis=0)
-            y_train_real = np.concatenate((y_train, y_valid[:i * fold], y_valid[(i + 1) * fold:10 * fold]), axis=0)
-            X_valid_real = np.concatenate((X_valid_real, X_valid[(i + 1) * fold:]), axis=0)
-            y_valid_real = np.concatenate((y_valid_real, y_valid[(i + 1) * fold:]), axis=0)
-        rf = RandomForestRegressor(n_estimators=500, criterion='mse', n_jobs=-1, max_features=0.15, min_samples_leaf=10)
-        rf.fit(X_train_real, y_train_real)
-        pred = rf.predict(X_valid_real)
-        CV_loss += MAPE2(y_valid_real, pred)
-        #print("time:" + str(time.time() - start_time))
-    CV_loss = CV_loss/len(X_valid)
+    space = {
+        'max_features': hp.loguniform('max_features', np.log(0.1), np.log(0.7)),
+        'min_samples_leaf': hp.loguniform('min_samples_leaf', np.log(0.001), np.log(0.02))
+       # 'min_samples_leaf': hp.choice('min_samples_leaf', range(2, 20))
+        #hp.choice('min_samples_leaf', [2, 5, 8, 12, 15, 20])
+       # hp.choice('X_train', (X_train)),
+       # hp.choice('y_train', (y_train)),
+       # hp.choice('X_valid', (X_valid)),
+       # hp.choice('y_valid', (y_valid)),
+        }
+    # minimize the objective over the space
+    best = fmin(randomforest_objective, space, algo=tpe.suggest, max_evals=20)
+
+    print(best)
+    CV_loss = randomforest_objective(best)
 
     '''
     max_features = [.1, .3, .5]
@@ -85,16 +112,17 @@ def train_for_moment(moment_id1, moment_id2, moment_id3, tollgate_id, direction)
         print("max_feat:" + str(max_feat) + " loss = " + str(test_score))
         print("time:" + str(time.time() - start_time))
     '''
+
     complete_train = np.concatenate((X_train, X_valid), axis=0)
     complete_label = np.concatenate((y_train, y_valid), axis=0)
-    rf = RandomForestRegressor(n_estimators=500, criterion='mse', n_jobs=-1, max_features=0.15, min_samples_leaf=10)
+    rf= RandomForestRegressor(n_estimators=500, criterion='mse', n_jobs=-1, max_features=best['max_features'], min_samples_leaf=best['min_samples_leaf'], random_state = 42)
     rf.fit(complete_train, complete_label)
     pred = rf.predict(X_test)
     return pred, CV_loss
 
 
 def main(tollgate_id, direction):
-    out_file_name = 'result_03_23.csv'
+    out_file_name = 'result_03_24.csv'
     test_path = "dataSets/testing_phase1/"
     fw = open(test_path + out_file_name, 'a')
     out_file_name2 = 'cv_loss.csv'
@@ -286,11 +314,13 @@ def main(tollgate_id, direction):
     fw2.close()
     return total_loss/6
 
-out_file_name = 'result_03_23.csv'
+'''
+out_file_name = 'result_03_24.csv'
 test_path = "dataSets/testing_phase1/"
 fw = open(test_path + out_file_name, 'a')
 fw.writelines(','.join(['"tollgate_id"', '"time_window"', '"direction"', '"volume"']) + '\n')
 fw.close()
+
 T_loss = 0
 print('tollgate:' + str(1) + 'direction:' + str(0))
 total_loss = main(1, 0)
@@ -322,3 +352,4 @@ out_file_name2 = 'cv_loss.csv'
 fw2 = open(test_path + out_file_name2, 'a')
 fw2.writelines(str(T_loss) + '\n')
 fw2.close()
+'''
