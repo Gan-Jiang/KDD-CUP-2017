@@ -16,6 +16,7 @@ import pickle
 from hyperopt import fmin, hp, tpe
 from xgboost import XGBRegressor
 from sklearn.svm import SVR
+import random
 
 def MAPE(ground_truth, predictions):
     ground_truth[ground_truth == 0] = 100000
@@ -49,7 +50,6 @@ def randomforest_objective(params):
         clf = KNeighborsRegressor()
     elif t == 'SVR':
         clf = SVR()
-    weight2 = weight
     CV_loss = 0
     fold = len(X_train) // 10
     for i in range(10):
@@ -91,48 +91,53 @@ def train_for_moment(moment_id1, moment_id2, moment_id3, tollgate_id, direction)
     X_test = data['X_test']
     weight = data['weight']
 
-    np.random.seed(42)
 
     train_data = np.concatenate((X_train, y_train.reshape(len(y_train), 1), weight.reshape(len(y_train), 1)), axis = 1)
-    np.random.shuffle(train_data)
-    X_train = train_data[:, :-2]
 
-    y_train = train_data[:, -2].reshape(len(y_train),)
-    weight = train_data[:, -1].reshape(len(y_train),)
+    m_seeds = [797,533,295,997,841,537,660,316,55,130]
+    result = []
+    for seed in m_seeds:
+        np.random.seed(seed)
+        np.random.shuffle(train_data)
+        X_train = train_data[:, :-2]
+
+        y_train = train_data[:, -2].reshape(len(y_train),)
+        weight = train_data[:, -1].reshape(len(y_train),)
 
 
-    space = hp.choice('classifier_type', [
+        space = hp.choice('classifier_type', [
 
-        #{
-        #    'type': 'rf',
-        #    'max_features': hp.loguniform('max_features', np.log(0.1), np.log(0.7)),
-        #    'min_samples_leaf': hp.loguniform('min_samples_leaf', np.log(0.001), np.log(0.02))
-        #}
-        {
-            'type': 'xgboost'
-            #'learning_rate':hp.uniform('learning_rate', 0.1, 0.2),
-            #'C': hp.uniform('C', 0, 10.0),
-            #'kernel': hp.choice('kernel', ['linear', 'rbf']),
-            #'gamma': hp.uniform('gamma', 0, 20.0)
-        }
-        #{
-        #    'type': 'knn'
-       # }
-        #{
-        #    'type':'SVR'
-        #}
-    ])
+            {
+               'type': 'rf'
+            #    'max_features': hp.loguniform('max_features', np.log(0.1), np.log(0.7)),
+            #    'min_samples_leaf': hp.loguniform('min_samples_leaf', np.log(0.001), np.log(0.02))
+            }
+            #{
+                #'type': 'xgboost'
+                #'learning_rate':hp.uniform('learning_rate', 0.1, 0.2),
+                #'C': hp.uniform('C', 0, 10.0),
+                #'kernel': hp.choice('kernel', ['linear', 'rbf']),
+                #'gamma': hp.uniform('gamma', 0, 20.0)
+            #}
+           # {
+            #    'type': 'knn'
+           # }
+            #{
+            #    'type':'SVR'
+            #}
+        ])
 
-    # minimize the objective over the space
-    best = fmin(randomforest_objective, space, algo=tpe.suggest, max_evals=1)
-
-    print(best)
-    if best['classifier_type'] == 0:
-        best['type'] = 'xgboost'
-    del best['classifier_type']
-    CV_loss = randomforest_objective(best)
-
-    best['type'] = 'xgboost'
+        # minimize the objective over the space
+        #best = fmin(randomforest_objective, space, algo=tpe.suggest, max_evals=1)
+        best = {'classifier_type': 0}
+        print(best)
+        if best['classifier_type'] == 0:
+            best['type'] = 'rf'
+        del best['classifier_type']
+        CV_loss = randomforest_objective(best)
+        result.append(CV_loss)
+    CV_loss = np.mean(result)
+    best['type'] = 'rf'
     if best['type'] == 'rf':
         del best['type']
 
@@ -146,14 +151,13 @@ def train_for_moment(moment_id1, moment_id2, moment_id3, tollgate_id, direction)
     elif best['type'] == 'SVR':
         clf = SVR()
 
-    clf.fit(X_train, y_train)
-    #, sample_weight = weight)
+    clf.fit(X_train, y_train, sample_weight = weight)
     pred = clf.predict(X_test)
     return pred, CV_loss
 
 
 def main(tollgate_id, direction):
-    out_file_name = 'result_03_26.csv'
+    out_file_name = 'result_03_27.csv'
     test_path = "dataSets/testing_phase1/"
     fw = open(test_path + out_file_name, 'a')
     out_file_name2 = 'cv_loss.csv'
@@ -346,7 +350,7 @@ def main(tollgate_id, direction):
     return total_loss/6
 
 
-out_file_name = 'result_03_26.csv'
+out_file_name = 'result_03_27.csv'
 test_path = "dataSets/testing_phase1/"
 fw = open(test_path + out_file_name, 'a')
 fw.writelines(','.join(['"tollgate_id"', '"time_window"', '"direction"', '"volume"']) + '\n')
