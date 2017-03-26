@@ -16,6 +16,7 @@ import pickle
 from hyperopt import fmin, hp, tpe
 from xgboost import XGBRegressor
 from sklearn.svm import SVR
+import random
 
 def MAPE(ground_truth, predictions):
     ground_truth[ground_truth == 0] = 100000
@@ -29,123 +30,135 @@ def MAPE2(ground_truth, predictions):
     diff = np.abs((ground_truth - predictions)/ground_truth).sum()
     return diff
 
+def MAPE3(ground_truth, predictions, weight):
+    ground_truth[ground_truth == 0] = 100000
+    predictions[ground_truth == 100000] = 100000
+    diff = (np.abs((ground_truth - predictions)/ground_truth)*weight).sum()
+    return diff
+
 
 def randomforest_objective(params):
     #CV procedure
-    global X_train, y_train, X_valid, y_valid
+    global X_train, y_train, weight
     t = params['type']
     del params['type']
     if t == 'rf':
-        clf = RandomForestRegressor(n_estimators=500, criterion='mse', n_jobs=-1,random_state = 42,  **params)
+        clf = RandomForestRegressor(n_estimators=500, criterion='mse', n_jobs=-1,random_state = 42, max_features = 0.15,min_samples_leaf = 10,  **params)
     elif t == 'xgboost':
         clf = XGBRegressor(n_estimators = 1000, seed = 42, **params)
     elif t == 'knn':
         clf = KNeighborsRegressor()
     elif t == 'SVR':
         clf = SVR()
-
     CV_loss = 0
-    fold = len(X_valid) // 10
-    for i in range(10):
-        #start_time = time.time()
-        X_valid_real = X_valid[i*fold:(i+1)*fold]
-        y_valid_real = y_valid[i*fold:(i+1)*fold]
-        X_train_real = np.concatenate((X_train, X_valid[:i*fold], X_valid[(i+1)*fold:]), axis=0)
-        y_train_real = np.concatenate((y_train, y_valid[:i*fold], y_valid[(i+1)*fold:]), axis=0)
+    #348 of two hours in total for training data.
+    candadate_set = np.array(range(346))
+    m_seeds = [797,533,295,997,841,537,660,316,55,130]
+    for seed in m_seeds:
+        np.random.seed(seed)
+        valid_index = np.random.choice(346, 35)
+        remove_index = []
+        X_valid_real = np.array([])
+        y_valid_real = np.array([])
+        weight_valid = np.array([])
 
-        if (i == 9) and (len(X_valid) % fold != 0):
-            X_train_real = np.concatenate((X_train, X_valid[:i * fold], X_valid[(i + 1) * fold:10 * fold]), axis=0)
-            y_train_real = np.concatenate((y_train, y_valid[:i * fold], y_valid[(i + 1) * fold:10 * fold]), axis=0)
-            X_valid_real = np.concatenate((X_valid_real, X_valid[(i + 1) * fold:]), axis=0)
-            y_valid_real = np.concatenate((y_valid_real, y_valid[(i + 1) * fold:]), axis=0)
+        X_train_real = np.array([])
+        y_train_real = np.array([])
+        weight_train = np.array([])
+        for i in valid_index:
+            remove_index.append(i)
+            remove_index.append(i-1)
+            remove_index.append(i+1)
+            try:
+                X_valid_real = np.concatenate((X_valid_real, X_train[i*6:(i+1)*6]), axis=0)
+                y_valid_real = np.concatenate((y_valid_real, y_train[i*6:(i+1)*6]), axis=0)
+                weight_valid = np.concatenate((weight_valid, weight[i*6:(i+1)*6]), axis=0)
+            except:
+                X_valid_real = X_train[i*6:(i+1)*6]
+                y_valid_real = y_train[i*6:(i+1)*6]
+                weight_valid = weight[i*6:(i+1)*6]
+        remove_index = np.unique(remove_index)
+        remove_index = remove_index[(remove_index>=0) & (remove_index <= 345)]
+
+
+
+        train_index = np.delete(candadate_set, remove_index, axis = 0)
+
+        for i in train_index:
+            try:
+                X_train_real = np.concatenate((X_train_real, X_train[i * 6:(i + 1) * 6]), axis=0)
+                y_train_real = np.concatenate((y_train_real, y_train[i * 6:(i + 1) * 6]), axis=0)
+                weight_train = np.concatenate((weight_train, weight[i * 6:(i + 1) * 6]), axis=0)
+            except:
+                X_train_real = X_train[i * 6:(i + 1) * 6]
+                y_train_real = y_train[i * 6:(i + 1) * 6]
+                weight_train = weight[i * 6:(i + 1) * 6]
 
         #rf = RandomForestRegressor(n_estimators=500, criterion='mse', n_jobs=-1, max_features=max_features, min_samples_leaf=min_samples_leaf)
         #clf = RandomForestRegressor(n_estimators=500, criterion='mse', n_jobs=-1, **params)
         clf.fit(X_train_real, y_train_real)
+        #, sample_weight = weight_train)
         pred = clf.predict(X_valid_real)
-        CV_loss += MAPE2(y_valid_real.copy(), pred)
+        CV_loss += MAPE3(y_valid_real.copy(), pred, weight_valid)
         #print("time:" + str(time.time() - start_time))
-    CV_loss = CV_loss/len(X_valid)
+    CV_loss = CV_loss/(6*35*len(m_seeds))
     return CV_loss
 
 def train_for_moment(moment_id1, moment_id2, moment_id3, tollgate_id, direction):
-    global X_train, y_train, X_valid, y_valid
+    global X_train, y_train, weight
     data_path = "dataSets/data/"
-    with open(data_path + moment_id1[:2] + moment_id1[3:5] + str(tollgate_id) + str(direction) + 'data.pkl', 'rb') as handle:
+    with open(data_path + moment_id1[:2] + moment_id1[3:5] + str(tollgate_id) + str(direction) + 'data3.pkl', 'rb') as handle:
         data = pickle.load(handle)
         #data = {'X_train': X_train, 'X_test': X_test, 'X_valid': X_valid, 'y_train': y_train1, 'y_valid': y_valid}
 
     y_train = data['y_train']
     X_train = data['X_train']
-    X_valid = data['X_valid']
     X_test = data['X_test']
-    y_valid = data['y_valid']
+    weight = data['weight']
 
 
+    train_data = np.concatenate((X_train, y_train.reshape(len(y_train), 1), weight.reshape(len(y_train), 1)), axis = 1)
+    X_train = train_data[:, :-2]
 
-    np.random.seed(42)
-    valid_data = np.concatenate((X_valid, y_valid.reshape(len(y_valid), 1)), axis = 1)
+    y_train = train_data[:, -2].reshape(len(y_train),)
+    weight = train_data[:, -1].reshape(len(y_train),)
 
 
-    m_seeds = [797,533,295,997,841,537,660,316,55,130]
-    result = []
-    for seed in m_seeds:
-        np.random.seed(seed)
+    space = hp.choice('classifier_type', [
 
-        np.random.shuffle(valid_data)
-        X_valid = valid_data[:, :-1]
-        y_valid = valid_data[:, -1].reshape(len(y_valid),)
+        {
+           'type': 'rf'
+        #    'max_features': hp.loguniform('max_features', np.log(0.1), np.log(0.7)),
+        #    'min_samples_leaf': hp.loguniform('min_samples_leaf', np.log(0.001), np.log(0.02))
+        }
+        #{
+            #'type': 'xgboost'
+            #'learning_rate':hp.uniform('learning_rate', 0.1, 0.2),
+            #'C': hp.uniform('C', 0, 10.0),
+            #'kernel': hp.choice('kernel', ['linear', 'rbf']),
+            #'gamma': hp.uniform('gamma', 0, 20.0)
+        #}
+       # {
+        #    'type': 'knn'
+       # }
+        #{
+        #    'type':'SVR'
+        #}
+    ])
 
-        '''
-        loss = make_scorer(MAPE, greater_is_better=False)
-        rf = RandomForestRegressor(n_estimators=100, criterion='mae', n_jobs=-1)
-        parameters = {'max_features': [0.25, 0.35, 0.45], 'min_samples_leaf': [5, 10, 20]}
-        clf = GridSearchCV(rf, parameters, scoring = loss, n_jobs = -1)
-        params = clf.best_params_
-        '''
-        space = hp.choice('classifier_type', [
-
-            #{
-            #    'type': 'rf',
-            #    'max_features': hp.loguniform('max_features', np.log(0.1), np.log(0.7)),
-            #    'min_samples_leaf': hp.loguniform('min_samples_leaf', np.log(0.001), np.log(0.02))
-            #},
-            #{
-             #   'type': 'xgboost',
-                #'learning_rate':hp.uniform('learning_rate', 0.1, 0.2),
-                #'C': hp.uniform('C', 0, 10.0),
-                #'kernel': hp.choice('kernel', ['linear', 'rbf']),
-                #'gamma': hp.uniform('gamma', 0, 20.0)
-            #}
-            {
-                'type': 'knn'
-            }
-            #{
-            #    'type':'SVR'
-            #}
-        ])
-        '''
-        space = {
-            'max_features': hp.loguniform('max_features', np.log(0.1), np.log(0.7)),
-            'min_samples_leaf': hp.loguniform('min_samples_leaf', np.log(0.001), np.log(0.02))
-            }
-        '''
-        # minimize the objective over the space
-        best = {'classifier_type': 0}
-        print(best)
-        if best['classifier_type'] == 0:
-            best['type'] = 'knn'
-        del best['classifier_type']
-        CV_loss = randomforest_objective(best)
-        result.append(CV_loss)
-    CV_loss = np.mean(result)
-    complete_train = np.concatenate((X_train, X_valid), axis=0)
-    complete_label = np.concatenate((y_train, y_valid), axis=0)
+    # minimize the objective over the space
+    #best = fmin(randomforest_objective, space, algo=tpe.suggest, max_evals=1)
+    best = {'classifier_type': 0}
+    print(best)
+    if best['classifier_type'] == 0:
+        best['type'] = 'knn'
+    del best['classifier_type']
+    CV_loss = randomforest_objective(best)
     best['type'] = 'knn'
     if best['type'] == 'rf':
         del best['type']
 
-        clf = RandomForestRegressor(n_estimators=500, criterion='mse', n_jobs=-1,random_state = 42, **best)
+        clf = RandomForestRegressor(n_estimators=500, criterion='mse', n_jobs=-1,random_state = 42, max_features = 0.15,min_samples_leaf = 10, **best)
     elif best['type'] == 'xgboost':
         del best['type']
 
@@ -155,13 +168,14 @@ def train_for_moment(moment_id1, moment_id2, moment_id3, tollgate_id, direction)
     elif best['type'] == 'SVR':
         clf = SVR()
 
-    clf.fit(complete_train, complete_label)
+    clf.fit(X_train, y_train)
+            #, sample_weight = weight)
     pred = clf.predict(X_test)
     return pred, CV_loss
 
 
 def main(tollgate_id, direction):
-    out_file_name = 'result_03_25.csv'
+    out_file_name = 'result_03_27.csv'
     test_path = "dataSets/testing_phase1/"
     fw = open(test_path + out_file_name, 'a')
     out_file_name2 = 'cv_loss.csv'
@@ -354,7 +368,7 @@ def main(tollgate_id, direction):
     return total_loss/6
 
 
-out_file_name = 'result_03_25.csv'
+out_file_name = 'result_03_27.csv'
 test_path = "dataSets/testing_phase1/"
 fw = open(test_path + out_file_name, 'a')
 fw.writelines(','.join(['"tollgate_id"', '"time_window"', '"direction"', '"volume"']) + '\n')

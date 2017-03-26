@@ -71,8 +71,7 @@ def randomforest_objective(params):
 
         #rf = RandomForestRegressor(n_estimators=500, criterion='mse', n_jobs=-1, max_features=max_features, min_samples_leaf=min_samples_leaf)
         #clf = RandomForestRegressor(n_estimators=500, criterion='mse', n_jobs=-1, **params)
-        clf.fit(X_train_real, y_train_real)
-        #sample_weight = weight_train)
+        clf.fit(X_train_real, y_train_real, sample_weight = weight_train)
         pred = clf.predict(X_valid_real)
         CV_loss += MAPE3(y_valid_real.copy(), pred, weight_valid)
         #print("time:" + str(time.time() - start_time))
@@ -93,8 +92,8 @@ def train_for_moment(moment_id1, moment_id2, moment_id3, tollgate_id, direction)
 
 
     train_data = np.concatenate((X_train, y_train.reshape(len(y_train), 1), weight.reshape(len(y_train), 1)), axis = 1)
-
-    m_seeds = [797,533,295,997,841,537,660,316,55,130]
+    m_seeds = [42]
+    #m_seeds = [797,533,295,997,841,537,660,316,55,130]
     result = []
     for seed in m_seeds:
         np.random.seed(seed)
@@ -151,7 +150,8 @@ def train_for_moment(moment_id1, moment_id2, moment_id3, tollgate_id, direction)
     elif best['type'] == 'SVR':
         clf = SVR()
 
-    clf.fit(X_train, y_train, sample_weight = weight)
+    clf.fit(X_train, y_train)
+            #, sample_weight = weight)
     pred = clf.predict(X_test)
     return pred, CV_loss
 
